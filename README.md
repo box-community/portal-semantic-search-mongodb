@@ -1,36 +1,139 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Box Content Portal
 
-## Getting Started
+A content portal powered by Box and Next.js with semantic search via MongoDB Atlas Vector Search.
 
-First, run the development server:
+## Features
+
+- **Box Integration**: Sync content from Box folders (PDF, DOCX, TXT, MD)
+- **Chunked Embeddings**: Documents are split into chunks (~1500 chars) before embedding for better retrieval
+- **Semantic Search**: Find documents by meaning using OpenAI embeddings and MongoDB Vector Search
+- **Modern UI**: Clean Shadcn-powered interface with responsive design
+
+## Tech Stack
+
+- **Framework**: Next.js 16 (App Router)
+- **UI**: Shadcn/ui, Tailwind CSS
+- **Content**: Box API (box-node-sdk)
+- **Database**: MongoDB Atlas
+- **Search**: MongoDB Atlas Vector Search + OpenAI embeddings
+
+## Setup
+
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Environment variables
+
+Copy `.env.example` to `.env.local` and configure:
+
+```bash
+# Box - use one of:
+# Option A: Developer token (quick testing)
+BOX_DEVELOPER_TOKEN=
+
+# Option B: JWT config (production) - paste JSON from Box Developer Console
+#BOX_CONFIG_JSON='{"boxAppSettings":{...},"enterpriseId":"..."}'
+
+BOX_ROOT_FOLDER_ID=0  # Box folder ID to sync (0 = root)
+
+# MongoDB Atlas
+MONGODB_URI=
+
+# OpenAI
+OPENAI_API_KEY=sk-...
+```
+
+### 3. MongoDB Vector Search Index
+
+Create a vector search index on the `content` collection in Atlas:
+
+1. Go to Atlas → Database → Search Indexes
+2. Create Index → JSON Editor
+3. Use this definition:
+
+```json
+{
+  "fields": [
+    {
+      "type": "vector",
+      "path": "embedding",
+      "numDimensions": 1536,
+      "similarity": "cosine"
+    },
+    {
+      "type": "filter",
+      "path": "type"
+    }
+  ]
+}
+```
+
+Name the index `content_vector_index`.
+
+### 4. Run the app
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 5. Sync content
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Run the sync script to index Box content into MongoDB:
 
-## Learn More
+```bash
+npm run sync
+```
 
-To learn more about Next.js, take a look at the following resources:
+To sync a specific folder:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run sync -- --folder-id=123456789
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Then search for content using natural language in the app.
 
-## Deploy on Vercel
+## Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+scripts/
+├── sync.ts             # CLI: Box → MongoDB sync
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+src/
+├── app/
+│   ├── api/
+│   │   ├── search/     # Semantic search API
+│   │   └── content/    # Content detail API
+│   ├── content/[id]/   # Content detail page
+│   └── page.tsx        # Landing + search
+├── components/
+│   ├── ui/             # Shadcn components
+│   ├── search-bar.tsx
+│   ├── content-card.tsx
+│   └── content-grid.tsx
+└── lib/
+    ├── box.ts          # Box API client
+    ├── mongodb.ts      # MongoDB connection
+    ├── embeddings.ts   # OpenAI embeddings
+    ├── chunking.ts     # Text chunking for embeddings
+    ├── text-extraction.ts
+    ├── content-sync.ts
+    └── vector-search.ts
+```
+
+## Supported File Types
+
+- **PDF**: Full text extraction
+- **DOCX/DOC**: Full text extraction
+- **TXT/MD**: Direct read
+- **Others**: Filename + metadata only
+
+## Chunked Storage
+
+Documents are chunked (paragraphs → sentences, ~1500 chars with 150 char overlap) before embedding. Each chunk is stored as a separate MongoDB document with full file metadata (`boxFileId`, `name`, `type`, etc.) for filtering and display.
+
+**Migration**: If you have existing document-level data (one doc per file), run a full re-sync after upgrading to replace with chunked documents.

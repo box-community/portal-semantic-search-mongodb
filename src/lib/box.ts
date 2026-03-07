@@ -1,5 +1,5 @@
 import { Readable } from "stream";
-import { BoxClient, BoxDeveloperTokenAuth, BoxJwtAuth, JwtConfig } from "box-node-sdk";
+import { BoxClient, BoxDeveloperTokenAuth, BoxCcgAuth, CcgConfig } from "box-node-sdk";
 
 interface BoxItem {
   id: string;
@@ -26,23 +26,23 @@ export function getBoxClient(): BoxClient {
   if (cachedClient) return cachedClient;
 
   const devToken = process.env.BOX_DEVELOPER_TOKEN;
+  const clientId = process.env.BOX_CLIENT_ID
+  const clientSecret = process.env.BOX_CLIENT_SECRET;
+
   if (devToken) {
     const auth = new BoxDeveloperTokenAuth({ token: devToken });
     cachedClient = new BoxClient({ auth });
     return cachedClient;
   }
-
-  const configJson = process.env.BOX_CONFIG_JSON;
-  if (configJson) {
-    const jwtConfig = JwtConfig.fromConfigJsonString(configJson);
-    const auth = new BoxJwtAuth({ config: jwtConfig });
+  else if (clientId && clientSecret) {
+    const config = new CcgConfig({ clientId, clientSecret });
+    const auth = new BoxCcgAuth({ config });
     cachedClient = new BoxClient({ auth });
     return cachedClient;
   }
-
-  throw new Error(
-    "Box auth not configured. Set BOX_DEVELOPER_TOKEN or BOX_CONFIG_JSON (JWT config JSON string)"
-  );
+  else {
+    throw new Error("BOX_DEVELOPER_TOKEN or (BOX_CLIENT_ID and BOX_CLIENT_SECRET) must be set");
+  }
 }
 
 export async function listFolderContents(folderId: string): Promise<BoxItem[]> {

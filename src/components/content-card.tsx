@@ -48,11 +48,6 @@ export function ContentCard({
         )}
       </CardHeader>
       <CardContent className="space-y-3">
-        {contentSnippet && (
-          <p className="text-sm text-muted-foreground line-clamp-2">
-            {contentSnippet}
-          </p>
-        )}
         <div className="flex gap-2">
           <Button asChild variant="default" size="sm">
             <Link href={`/content/${id}`}>

@@ -34,7 +34,7 @@ export function SearchResults() {
     setIsLoading(true);
     setError(null);
 
-    fetch(`/api/search?q=${encodeURIComponent(q)}&limit=12`)
+    fetch(`/api/search?q=${encodeURIComponent(q)}`)
       .then((res) => res.json())
       .then((data) => {
         if (cancelled) return;

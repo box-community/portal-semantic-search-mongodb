@@ -3,6 +3,7 @@ import type { ContentChunk } from "@/types/content";
 
 const VECTOR_INDEX_NAME = "content_vector_index";
 const EMBEDDING_DIMENSIONS = 1536;
+const MIN_SCORE = 0.6;
 
 export interface VectorSearchResult {
   _id: string;
@@ -33,8 +34,8 @@ export async function vectorSearch(
         index: VECTOR_INDEX_NAME,
         path: "embedding",
         queryVector,
-        limit: limit * 15,
-        numCandidates: limit * 50,
+        limit,
+        numCandidates: limit * 10,
         ...(filter && { filter }),
       },
     },
@@ -60,11 +61,11 @@ export async function vectorSearch(
 
   const results = await collection.aggregate<VectorSearchResult>(pipeline).toArray();
   console.log("Number of results:", results.length);
-  //console.log("Vector Search Results:", results);
+  console.log("Vector Search Results:", results);
 
   return results
-    // remove results with score less than 0.6
-    .filter((r) => r.score > 0.6)
+    // remove results with score less than MIN_SCORE
+    .filter((r) => r.score > MIN_SCORE)
     .map((r) => ({
     ...r,
     _id: r._id?.toString() ?? "",

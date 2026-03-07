@@ -1,5 +1,7 @@
 # Box Content Portal
 
+<img width="2762" height="1018" alt="CleanShot 2026-03-06 at 16 16 58@2x" src="https://github.com/user-attachments/assets/060a9d8e-ce4d-4d81-b72e-ecc02435f499" />
+
 A content portal powered by Box and Next.js with semantic search via MongoDB Atlas Vector Search.
 
 ## Features

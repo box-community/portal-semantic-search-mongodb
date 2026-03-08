@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { FileText, ExternalLink, Download } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -50,10 +49,14 @@ export function ContentCard({
       <CardContent className="space-y-3">
         <div className="flex gap-2">
           <Button asChild variant="default" size="sm">
-            <Link href={`/content/${id}`}>
+            <a
+              href={`https://app.box.com/file/${id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <ExternalLink className="h-3.5 w-3.5 mr-1" />
               View
-            </Link>
+            </a>
           </Button>
           {downloadUrl && (
             <Button asChild variant="outline" size="sm">

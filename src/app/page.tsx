@@ -34,7 +34,8 @@ export default function Home() {
 
       <footer className="border-t mt-24">
         <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
-          Box Content Portal · Semantic search powered by MongoDB Atlas
+          <a href="https://github.com/box-community/portal-semantic-search-mongodb" target="_blank" rel="noopener noreferrer">Source Code</a>
+          &nbsp;·&nbsp; <a href="https://account.box.com/signup/developer" target="_blank">Signup for Box for Free</a>
         </div>
       </footer>
     </div>

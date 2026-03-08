@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Box Content Portal",
   description: "Semantic search for your Box content powered by MongoDB Atlas",
+  icons: {
+    icon: "/icon.png",
+  },
 };
 
 export default function RootLayout({

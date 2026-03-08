@@ -63,9 +63,9 @@ export function SearchResults() {
   if (!q) {
     return (
       <div className="text-center py-16 text-muted-foreground">
-        <p className="text-lg">Enter a search query to find content</p>
+        <p className="text-md">Search these public domain books: A Christmas Carol, Alice's Adventures in Wonderland, Frankenstein, Peter Pan and Wuthering Heights </p>
         <p className="text-sm mt-1">
-          Semantic search finds relevant documents by meaning, not just keywords
+          Some queries to try: <a href="?q=children who can fly">children who can fly</a>, <a href="?q=tales of revenge">tales of revenge</a> and <a href="?q=stories of the sea">stories of the sea</a>
         </p>
       </div>
     );
